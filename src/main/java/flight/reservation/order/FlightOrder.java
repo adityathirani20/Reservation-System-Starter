@@ -3,6 +3,8 @@ package flight.reservation.order;
 import flight.reservation.Customer;
 import flight.reservation.flight.ScheduledFlight;
 import flight.reservation.payment.CreditCard;
+import flight.reservation.payment.PaymentMethod;
+import flight.reservation.payment.PaymentMethodFactory;
 import flight.reservation.payment.Paypal;
 
 import java.util.Arrays;
@@ -104,4 +106,20 @@ public class FlightOrder extends Order {
             return false;
         }
     }
+
+    public boolean processOrderWithPaymentFactory(PaymentMethodFactory paymentMethodFactory) throws IllegalStateException {
+        if (isClosed()) {
+            // Payment is already proceeded
+            return true;
+        }
+
+        PaymentMethod paymentMethod = paymentMethodFactory.createPaymentMethod();
+        boolean isPaid = paymentMethod.pay(this.getPrice());
+        if (isPaid) {
+            this.setClosed();
+        }
+        return isPaid;
+    }
+
+
 }
